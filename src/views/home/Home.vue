@@ -78,14 +78,16 @@ import NavBar from "@/components/common/navbar/NavBar.vue"
 import TabControl from "@/components/content/tabControl/TabControl.vue"
 import GoodList from "@/components/content/goods/GoodList.vue"
 import Scroll from "@/components/common/scroll/Scroll.vue"
-import BackTop from "@/components/content/backTop/BackTop.vue"
+// 混入(mixin)
+// import BackTop from "@/components/content/backTop/BackTop.vue"
 
 import HomeSwiper from "./childComps/HomeSwiper.vue"
 import RecommendView from "./childComps/RecommendView.vue"
 import FeatureView from "./childComps/FeatureView.vue"
 
 import { getHomeMultidata, getHomeGoods } from "@/network/home"
-import { debounce } from "@/common/utils"
+// import { debounce } from "@/common/utils"
+import { backTopMixin, itemListenerMixin } from "@/common/mixin"
 
 export default {
   name: "Home",
@@ -94,11 +96,13 @@ export default {
     TabControl,
     GoodList,
     Scroll,
-    BackTop,
+    // 混入(mixin)
+    // BackTop,
     HomeSwiper,
     RecommendView,
     FeatureView
   },
+  mixins: [itemListenerMixin, backTopMixin],
   data() {
     return {
       // result: null
@@ -110,10 +114,13 @@ export default {
         sell: { page: 0, list: [] }
       },
       currentType: "pop",
-      isShowBackTop: false,
+      // 混入(mixin)
+      // isShowBackTop: false,
       tabOffsetTop: 0,
       isTabFixed: false,
       saveY: 0
+      // 这个也能使用混入(mixin)
+      // itemImageListener: null
     }
   },
   computed: {
@@ -126,14 +133,23 @@ export default {
   },
 
   // better-scroll 新版本已无此bug，不需要再这样实现
-  // activated() {
-  //   // console.log("activated")
-  //   this.$refs.scroll.scrollTo(0, this.saveY, 0)
-  //   this.$refs.scroll.refresh()
-  // },
+  // 真奇怪, 又有bug了
+  activated() {
+    // console.log("activated")
+    this.$refs.scroll.refresh()
+    this.$refs.scroll.scrollTo(0, this.saveY, 0)
+  },
+  deactivated() {
+    // console.log("deactivated")
+    this.saveY = this.$refs.scroll.getScrollY()
+
+    // 取消全局事件的监听
+    this.$bus.$off("itemImageLoad", this.itemImageListener)
+  },
+
   // deactivated() {
-  //   // console.log("deactivated")
-  //   this.saveY = this.$refs.scroll.getScrollY()
+  //   // 取消全局事件的监听
+  //   this.$bus.$off("itemImageLoad", this.itemImageListener)
   // },
 
   created() {
@@ -146,13 +162,15 @@ export default {
     this.getHomeGoods("sell")
   },
   mounted() {
-    // 1.图片加载完成的事件监听
-    const refresh = debounce(this.$refs.scroll.refresh, 200)
-    this.$bus.$on("itemImageLoad", () => {
-      // console.log("loaddddddd")
-      // this.$refs.scroll && this.$refs.scroll.refresh()
-      refresh()
-    })
+    // 使用了混入(mixin)
+    // // 1.图片加载完成的事件监听
+    // const refresh = debounce(this.$refs.scroll.refresh, 200)
+    // this.itemImageListener = () => {
+    //   // console.log("loaddddddd")
+    //   // this.$refs.scroll && this.$refs.scroll.refresh()
+    //   refresh()
+    // }
+    // this.$bus.$on("itemImageLoad", this.itemImageListener)
   },
   methods: {
     /**
@@ -177,10 +195,11 @@ export default {
       this.$refs.tabControl2.currentIndex = index
     },
 
+    // 混入(mixin)
     // 返回顶部
-    backClick() {
-      this.$refs.scroll.scrollTo(0, 0)
-    },
+    // backClick() {
+    //   this.$refs.scroll.scrollTo(0, 0)
+    // },
 
     contentScroll(position) {
       // 1.判断BackTop是否显示

@@ -1,6 +1,6 @@
 <template>
   <div class="goods-item" @click="itemClick">
-    <img :src="goodsItem.show.img" alt="" @load="imageLoad">
+    <img :src="showImage" alt="" @load="imageLoad">
     <div class="goods-info">
       <p>{{goodsItem.title}}</p>
       <span class="price">{{goodsItem.price}}</span>
@@ -20,10 +20,23 @@ export default {
       }
     }
   },
+  computed: {
+    showImage() {
+      return this.goodsItem.image || this.goodsItem.show.img
+    }
+  },
   methods: {
     imageLoad() {
       // console.log("imageLoad")
       this.$bus.$emit("itemImageLoad")
+
+      // 阻止itemImageLoad监听全局导致加载完推荐数据后对首页界面进行刷新
+      // 但是未实现
+      // if (this.$route.path.indexOf("/home") !== -1) {
+      //   this.$bus.$emit("homeItemImageLoad")
+      // } else if (this.$route.path.indexOf("/detail")) {
+      //   this.$bus.$emit("detailItemImageLoad")
+      // }
     },
     itemClick() {
       // console.log("----")

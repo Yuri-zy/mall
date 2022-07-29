@@ -5,9 +5,15 @@
       <div class="desc">{{detailInfo.desc}}</div>
       <div class="end"></div>
     </div>
-    <div class="info-key">{{detailInfo.detailImage[0].key}}</div>
+    <!-- <div class="info-key">{{detailInfo.detailImage[0].key}}</div>
     <div class="info-list">
-      <img v-for="(item, index) in detailInfo.detailImage[0].list" :key="index" :src="item" alt="">
+      <img v-for="(item, index) in detailInfo.detailImage[0].list" :key="index" :src="item" @load="imageLoad" alt="">
+    </div> -->
+    <div v-for="(item, index) in detailInfo.detailImage" :key="index">
+      <div class="info-key">{{item.key}}</div>
+      <div class="info-list">
+        <img v-for="(item, index) in item.list" :key="index" :src="item" @load="imgLoad" alt="">
+      </div>
     </div>
   </div>
 </template>
@@ -27,11 +33,17 @@ export default {
     }
   },
   methods: {
+    // 第一种监听图片加载的方法
+    // imageLoad() {
+    //   // 判断, 所有的图片都加载完了, 那么进行一次回调就可以了
+    //   if (++this.counter === this.detailInfo.detailImage[0].list.length) {
+    //     this.$emit("imageLoad")
+    //   }
+    // }
+    // 第二种监听图片加载的方法
     imgLoad() {
-      // 判断, 所有的图片都加载完了, 那么进行一次回调就可以了
-      if (++this.counter === this.detailInfo.detailImage[0].list.length) {
-        this.$emit("imageLoad")
-      }
+      // console.log(123)
+      this.$emit("imgLoad")
     }
   },
   watch: {

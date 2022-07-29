@@ -9,13 +9,13 @@
 <script>
 // 安装了具备所有插件能力的 better-scroll, 因此不需要再npm install插件
 import BScroll from "better-scroll"
-// import ObserveDOM from "@better-scroll/observe-dom"
-// import ObserveImage from "@better-scroll/observe-image"
-// import PullUp from "@better-scroll/pull-up"
+import ObserveDOM from "@better-scroll/observe-dom"
+import ObserveImage from "@better-scroll/observe-image"
+import PullUp from "@better-scroll/pull-up"
 
-// BScroll.use(ObserveDOM)
-// BScroll.use(ObserveImage)
-// BScroll.use(PullUp)
+BScroll.use(ObserveDOM)
+BScroll.use(ObserveImage)
+BScroll.use(PullUp)
 
 export default {
   name: "Scroll",
@@ -40,9 +40,9 @@ export default {
       click: true,
       probeType: this.probeType,
       pullUpLoad: this.pullUpLoad,
-      observeDOM: true
-      // ObserveImage: 200,
-      // pullUpLoad: true
+      observeDOM: true,
+      ObserveImage: 200,
+      pullUpLoad: true
     })
 
     // 2.监听滚动的位置
@@ -88,10 +88,10 @@ export default {
     refresh() {
       // console.log("---------")
       this.scroll && this.scroll.refresh()
+    },
+    getScrollY() {
+      return this.scroll ? this.scroll.y : 0
     }
-    // getScrollY() {
-    //   return this.scroll ? this.scroll.y : 0
-    // }
   }
 }
 </script>
