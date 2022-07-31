@@ -34,8 +34,9 @@
         <li>列表20</li>
       </ul> -->
     </scroll>
-    <detail-bottom-bar></detail-bottom-bar>
+    <detail-bottom-bar @addToCart="addToCart"></detail-bottom-bar>
     <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
+    <!-- <toast :message="message" :show="show"></toast> -->
   </div>
 </template>
 
@@ -51,11 +52,14 @@ import DetailBottomBar from "./childComps/DetailBottomBar.vue"
 
 import Scroll from "@/components/common/scroll/Scroll.vue"
 import GoodList from "@/components/content/goods/GoodList.vue"
+// import Toast from "@/components/common/toast/Toast.vue"
 
 import { getDetail, getRecommend, Goods, Shop, GoodsParam } from "@/network/detail"
 // import { debounce } from "@/common/utils"
 import { backTopMixin, itemListenerMixin } from "@/common/mixin"
 import { debounce } from "@/common/utils"
+
+import { mapActions } from "vuex"
 
 export default {
   name: "Detail",
@@ -70,6 +74,7 @@ export default {
     DetailBottomBar,
     Scroll,
     GoodList
+    // Toast
   },
   mixins: [itemListenerMixin, backTopMixin],
   data() {
@@ -87,6 +92,8 @@ export default {
       themeTopYs: [],
       getThemeTopY: null,
       currentIndex: 0
+      // message: "",
+      // show: false
     }
   },
   created() {
@@ -98,7 +105,8 @@ export default {
       // ①. 获取顶部的图片轮播数据
       // console.log(res)
       const data = res.result
-      this.topImages = res.result.itemInfo.topImages
+      // this.topImages = res.result.itemInfo.topImages
+      this.topImages = data.itemInfo.topImages
 
       // ②.获取商品信息
       this.goods = new Goods(data.itemInfo, data.columns, data.shopInfo.services)
@@ -110,6 +118,7 @@ export default {
       this.detailInfo = data.detailInfo
 
       // ⑤. 获取参数的信息
+      // res.result.itemParams.info
       this.paramInfo = new GoodsParam(data.itemParams.info, data.itemParams.rule)
 
       // ⑥. 获取评论的信息
@@ -144,10 +153,16 @@ export default {
       this.themeTopYs.push(this.$refs.comment.$el.offsetTop)
       this.themeTopYs.push(this.$refs.recommend.$el.offsetTop)
       this.themeTopYs.push(Number.MAX_VALUE)
-      console.log(this.themeTopYs)
+      // console.log(this.themeTopYs)
     }, 100)
   },
   methods: {
+    // 两种写法
+    ...mapActions(["addTooCart"]),
+    // ...mapActions({
+    //   addTooCart: "addTooCart"
+    // }),
+
     // detailGoodsInfo 中第一种监听图片加载的方法
     // imageLoad() {
     //   // console.log(321)
@@ -178,7 +193,7 @@ export default {
         // 数组尾部添加一个最大值
         if (this.currentIndex !== i && positionY >= this.themeTopYs[i] && positionY < this.themeTopYs[i + 1]) {
           this.currentIndex = i
-          console.log(i)
+          // console.log(i)
           this.$refs.detailNavBar.currentIndex = this.currentIndex
         }
 
@@ -191,6 +206,39 @@ export default {
       }
 
       this.isShowBackTop = -position.y > 1000
+    },
+    addToCart() {
+      // console.log("cart")
+      // 1.获取购物车展示的信息
+      const product = {}
+      product.image = this.topImages[0]
+      product.title = this.goods.title
+      product.desc = this.goods.desc
+      product.price = this.goods.realPrice
+      product.iid = this.iid
+
+      // 2.将商品添加到购物车里
+      // 从mutations转移到了actions中
+      // this.$store.commit("addToCart", product)
+
+      // mapActions映射写法
+      // 此处的actions内的函数名不能跟本函数名相同, 相同则报错
+      this.addTooCart(product).then(res => {
+        // this.show = true
+        // this.message = res
+        // console.log(res)
+        // setTimeout(() => {
+        //   this.show = false
+        // }, 1000)
+        this.$toast.show(res)
+
+        // console.log(this.$toast)
+      })
+
+      // 一般写法
+      // this.$store.dispatch("addTooCart", product).then(res => {
+      //   console.log(res)
+      // })
     }
   },
   mounted() {
@@ -214,6 +262,7 @@ export default {
   z-index: 999;
   background-color: #fff;
   height: 100vh;
+  overflow: hidden;
 }
 
 .detail-nav {
